@@ -28,7 +28,7 @@ dependencies:
   riscv-dbg:          { git: https://github.com/pulp-platform/riscv-dbg,          version:  0.8.0   }
   cluster_icache:     { git: https://github.com/pulp-platform/cluster_icache.git, version:  0.1.0   }
   idma:               { git: https://github.com/pulp-platform/iDMA,               version:  0.6.0   }
-  transformer-accel:  { git: https://iis-git.ee.ethz.ch/ita/ita.git,              rev:      a78e8e90be0047f4eb9a91b1c4ad631c8cae00c8 }
+  transformer-accel:  { git: https://iis-git.ee.ethz.ch/ita/ita.git,              rev:      f6558f66a346ce966fb83b1e6d520c13f2fab9eb }
 
 vendor_package:
   - name: musl

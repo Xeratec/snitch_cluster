@@ -412,5 +412,29 @@
             desc: "Enable instruction prefetching."
         }]
     }
+    {
+        name: "HWPE_EVT",
+        desc: '''HWPE. This register is used to keep track of the REDMULE event signal.'''
+        swaccess: "ro",
+        hwaccess: "hrw",
+        hwext: "true",
+        fields: [{
+            bits: "17:0",
+            name: "HWPE_EVT",
+            desc: "REDMULE events."
+        }]
+    },
+    {
+        name: "HWPE_BUSY",
+        desc: '''HWPE. This register is used to keep track of the REDMULE busy signal.'''
+        swaccess: "ro",
+        hwaccess: "hrw",
+        hwext: "true",
+        fields: [{
+            bits: "0:0",
+            name: "HWPE_BUSY",
+            desc: "REDMULE busy."
+        }]
+    },
     ]
 }

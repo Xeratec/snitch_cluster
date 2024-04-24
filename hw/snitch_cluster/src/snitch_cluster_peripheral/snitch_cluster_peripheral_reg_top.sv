@@ -8,12 +8,12 @@
 `include "common_cells/assertions.svh"
 
 module snitch_cluster_peripheral_reg_top #(
-    parameter type reg_req_t = logic,
-    parameter type reg_rsp_t = logic,
-    parameter int AW = 9
+  parameter type reg_req_t = logic,
+  parameter type reg_rsp_t = logic,
+  parameter int AW = 9
 ) (
-  input clk_i,
-  input rst_ni,
+  input logic clk_i,
+  input logic rst_ni,
   input  reg_req_t reg_req_i,
   output reg_rsp_t reg_rsp_o,
   // To HW
@@ -33,7 +33,7 @@ module snitch_cluster_peripheral_reg_top #(
   // register signals
   logic           reg_we;
   logic           reg_re;
-  logic [AW-1:0]  reg_addr;
+  logic [BlockAw-1:0]  reg_addr;
   logic [DW-1:0]  reg_wdata;
   logic [DBW-1:0] reg_be;
   logic [DW-1:0]  reg_rdata;
@@ -54,7 +54,7 @@ module snitch_cluster_peripheral_reg_top #(
 
   assign reg_we = reg_intf_req.valid & reg_intf_req.write;
   assign reg_re = reg_intf_req.valid & ~reg_intf_req.write;
-  assign reg_addr = reg_intf_req.addr;
+  assign reg_addr = reg_intf_req.addr[BlockAw-1:0];
   assign reg_wdata = reg_intf_req.wdata;
   assign reg_be = reg_intf_req.wstrb;
   assign reg_intf_rsp.rdata = reg_rdata;
@@ -1676,6 +1676,10 @@ module snitch_cluster_peripheral_reg_top #(
   logic hw_barrier_re;
   logic icache_prefetch_enable_wd;
   logic icache_prefetch_enable_we;
+  logic [17:0] hwpe_evt_qs;
+  logic hwpe_evt_re;
+  logic hwpe_busy_qs;
+  logic hwpe_busy_re;
 
   // Register instances
 
@@ -15390,9 +15394,41 @@ module snitch_cluster_peripheral_reg_top #(
   );
 
 
+  // R[hwpe_evt]: V(True)
+
+  prim_subreg_ext #(
+    .DW    (18)
+  ) u_hwpe_evt (
+    .re     (hwpe_evt_re),
+    .we     (1'b0),
+    .wd     ('0),
+    .d      (hw2reg.hwpe_evt.d),
+    .qre    (),
+    .qe     (),
+    .q      (reg2hw.hwpe_evt.q ),
+    .qs     (hwpe_evt_qs)
+  );
 
 
-  logic [51:0] addr_hit;
+  // R[hwpe_busy]: V(True)
+
+  prim_subreg_ext #(
+    .DW    (1)
+  ) u_hwpe_busy (
+    .re     (hwpe_busy_re),
+    .we     (1'b0),
+    .wd     ('0),
+    .d      (hw2reg.hwpe_busy.d),
+    .qre    (),
+    .qe     (),
+    .q      (reg2hw.hwpe_busy.q ),
+    .qs     (hwpe_busy_qs)
+  );
+
+
+
+
+  logic [53:0] addr_hit;
   always_comb begin
     addr_hit = '0;
     addr_hit[ 0] = (reg_addr == SNITCH_CLUSTER_PERIPHERAL_PERF_COUNTER_ENABLE_0_OFFSET);
@@ -15447,6 +15483,8 @@ module snitch_cluster_peripheral_reg_top #(
     addr_hit[49] = (reg_addr == SNITCH_CLUSTER_PERIPHERAL_CL_CLINT_CLEAR_OFFSET);
     addr_hit[50] = (reg_addr == SNITCH_CLUSTER_PERIPHERAL_HW_BARRIER_OFFSET);
     addr_hit[51] = (reg_addr == SNITCH_CLUSTER_PERIPHERAL_ICACHE_PREFETCH_ENABLE_OFFSET);
+    addr_hit[52] = (reg_addr == SNITCH_CLUSTER_PERIPHERAL_HWPE_EVT_OFFSET);
+    addr_hit[53] = (reg_addr == SNITCH_CLUSTER_PERIPHERAL_HWPE_BUSY_OFFSET);
   end
 
   assign addrmiss = (reg_re || reg_we) ? ~|addr_hit : 1'b0 ;
@@ -15505,7 +15543,9 @@ module snitch_cluster_peripheral_reg_top #(
                (addr_hit[48] & (|(SNITCH_CLUSTER_PERIPHERAL_PERMIT[48] & ~reg_be))) |
                (addr_hit[49] & (|(SNITCH_CLUSTER_PERIPHERAL_PERMIT[49] & ~reg_be))) |
                (addr_hit[50] & (|(SNITCH_CLUSTER_PERIPHERAL_PERMIT[50] & ~reg_be))) |
-               (addr_hit[51] & (|(SNITCH_CLUSTER_PERIPHERAL_PERMIT[51] & ~reg_be)))));
+               (addr_hit[51] & (|(SNITCH_CLUSTER_PERIPHERAL_PERMIT[51] & ~reg_be))) |
+               (addr_hit[52] & (|(SNITCH_CLUSTER_PERIPHERAL_PERMIT[52] & ~reg_be))) |
+               (addr_hit[53] & (|(SNITCH_CLUSTER_PERIPHERAL_PERMIT[53] & ~reg_be)))));
   end
 
   assign perf_counter_enable_0_cycle_0_we = addr_hit[0] & reg_we & !reg_error;
@@ -17119,6 +17159,10 @@ module snitch_cluster_peripheral_reg_top #(
   assign icache_prefetch_enable_we = addr_hit[51] & reg_we & !reg_error;
   assign icache_prefetch_enable_wd = reg_wdata[0];
 
+  assign hwpe_evt_re = addr_hit[52] & reg_re & !reg_error;
+
+  assign hwpe_busy_re = addr_hit[53] & reg_re & !reg_error;
+
   // Read data return
   always_comb begin
     reg_rdata_next = '0;
@@ -17811,6 +17855,14 @@ module snitch_cluster_peripheral_reg_top #(
         reg_rdata_next[0] = '0;
       end
 
+      addr_hit[52]: begin
+        reg_rdata_next[17:0] = hwpe_evt_qs;
+      end
+
+      addr_hit[53]: begin
+        reg_rdata_next[0] = hwpe_busy_qs;
+      end
+
       default: begin
         reg_rdata_next = '1;
       end
@@ -17830,3 +17882,55 @@ module snitch_cluster_peripheral_reg_top #(
   `ASSERT(en2addrHit, (reg_we || reg_re) |-> $onehot0(addr_hit))
 
 endmodule
+
+module snitch_cluster_peripheral_reg_top_intf
+#(
+  parameter int AW = 9,
+  localparam int DW = 64
+) (
+  input logic clk_i,
+  input logic rst_ni,
+  REG_BUS.in  regbus_slave,
+  // To HW
+  output snitch_cluster_peripheral_reg_pkg::snitch_cluster_peripheral_reg2hw_t reg2hw, // Write
+  input  snitch_cluster_peripheral_reg_pkg::snitch_cluster_peripheral_hw2reg_t hw2reg, // Read
+  // Config
+  input devmode_i // If 1, explicit error return for unmapped register access
+);
+ localparam int unsigned STRB_WIDTH = DW/8;
+
+`include "register_interface/typedef.svh"
+`include "register_interface/assign.svh"
+
+  // Define structs for reg_bus
+  typedef logic [AW-1:0] addr_t;
+  typedef logic [DW-1:0] data_t;
+  typedef logic [STRB_WIDTH-1:0] strb_t;
+  `REG_BUS_TYPEDEF_ALL(reg_bus, addr_t, data_t, strb_t)
+
+  reg_bus_req_t s_reg_req;
+  reg_bus_rsp_t s_reg_rsp;
+  
+  // Assign SV interface to structs
+  `REG_BUS_ASSIGN_TO_REQ(s_reg_req, regbus_slave)
+  `REG_BUS_ASSIGN_FROM_RSP(regbus_slave, s_reg_rsp)
+
+  
+
+  snitch_cluster_peripheral_reg_top #(
+    .reg_req_t(reg_bus_req_t),
+    .reg_rsp_t(reg_bus_rsp_t),
+    .AW(AW)
+  ) i_regs (
+    .clk_i,
+    .rst_ni,
+    .reg_req_i(s_reg_req),
+    .reg_rsp_o(s_reg_rsp),
+    .reg2hw, // Write
+    .hw2reg, // Read
+    .devmode_i
+  );
+  
+endmodule
+
+

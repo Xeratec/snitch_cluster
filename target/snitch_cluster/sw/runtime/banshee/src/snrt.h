@@ -36,3 +36,4 @@
 #include "ssr.h"
 #include "sync.h"
 #include "team.h"
+#include "hwpe.h"

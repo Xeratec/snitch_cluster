@@ -33,7 +33,9 @@ module snitch_cluster_peripheral
   input  core_events_t [NrCores-1:0] core_events_i,
   input  tcdm_events_t               tcdm_events_i,
   input  dma_events_t                dma_events_i,
-  input  snitch_icache_pkg::icache_events_t [NrCores-1:0] icache_events_i
+  input  snitch_icache_pkg::icache_events_t [NrCores-1:0] icache_events_i,
+  input  logic [NrCores-1:0][1:0]    hwpe_evt_i,
+  input  logic                       hwpe_busy_i
 );
 
   // Pipeline register to ease timing.
@@ -86,6 +88,10 @@ module snitch_cluster_peripheral
 
   // The hardware barrier is external and always reads `0`.
   assign hw2reg.hw_barrier.d = 0;
+
+  // Continuously assign the redmule status values.
+  assign hw2reg.hwpe_evt.d = hwpe_evt_i; 
+  assign hw2reg.hwpe_busy.d = hwpe_busy_i;
 
   always_comb begin
     perf_counter_d = perf_counter_q;

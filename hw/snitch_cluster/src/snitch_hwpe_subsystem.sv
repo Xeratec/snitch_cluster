@@ -52,19 +52,16 @@ module snitch_hwpe_subsystem
   
   // ctrl interface towards the hwpe (hwpe is AXI slave)
   input  hwpectrl_req_t hwpe_ctrl_req_i,
-  output hwpectrl_rsp_t hwpe_ctrl_rsp_o
-  
+  output hwpectrl_rsp_t hwpe_ctrl_rsp_o,
+
+  // Event and busy signals from RedmulE
+  output logic [NrCores-1:0][1:0] hwpe_evt_o,
+  output logic                    hwpe_busy_o
 );
 
   /**********************************/
   /* Internal Signals declaration   */
   /**********************************/
-
-  // internal signals definition: event signals
-  logic [NrCores-1:0][1:0] evt;
-
-  // internal signals definition: busy signal
-  logic busy;
 
   // TODO: clock gating cells
 
@@ -143,7 +140,8 @@ module snitch_hwpe_subsystem
     .clk_i,
     .rst_ni,
     .test_mode_i (1'b0       ),
-    .evt_o       (evt        ),
+    .evt_o       (hwpe_evt_o ),
+    .busy_o      (hwpe_busy_o),
     .tcdm        (tcdm       ),
     .periph      (periph     )
   );

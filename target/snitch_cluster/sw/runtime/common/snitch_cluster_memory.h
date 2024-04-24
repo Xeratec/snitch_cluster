@@ -22,6 +22,12 @@
     (CLUSTER_PERIPH_BASE_ADDR +   \
      SNITCH_CLUSTER_PERIPHERAL_PERF_COUNTER_ENABLE_0_REG_OFFSET)
 
+#define CLUSTER_HWPE_EVT_ADDR \
+    (CLUSTER_PERIPH_BASE_ADDR + SNITCH_CLUSTER_PERIPHERAL_HWPE_EVT_REG_OFFSET)
+
+#define CLUSTER_HWPE_BUSY_ADDR \
+    (CLUSTER_PERIPH_BASE_ADDR + SNITCH_CLUSTER_PERIPHERAL_HWPE_BUSY_REG_OFFSET)
+
 #define CLUSTER_TCDM_START_ADDR CLUSTER_TCDM_BASE_ADDR
 
 #define CLUSTER_TCDM_END_ADDR CLUSTER_PERIPH_BASE_ADDR
@@ -56,4 +62,12 @@ inline uint32_t __attribute__((const)) snrt_cluster_perf_counters_addr() {
 
 inline volatile uint32_t* __attribute__((const)) snrt_zero_memory_ptr() {
     return (uint32_t*)CLUSTER_ZERO_MEM_START_ADDR;
+}
+
+inline uint32_t __attribute__((const)) snrt_cluster_hwpe_evt_addr() {
+  return CLUSTER_HWPE_EVT_ADDR;
+}
+
+inline uint32_t __attribute__((const)) snrt_cluster_hwpe_busy_addr() {
+  return CLUSTER_HWPE_BUSY_ADDR;
 }

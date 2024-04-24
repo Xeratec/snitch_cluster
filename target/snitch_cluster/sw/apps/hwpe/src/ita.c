@@ -39,6 +39,11 @@ int main() {
 
     // Trigger ITA
     *(int *)(HWPE_ADDR_BASE + 0x00) = 0;
+
+    // Wait for completion
+    while (snrt_hwpe_busy() == 0);
+    while (snrt_hwpe_busy() == 1);
+
   }
 
   return 0;

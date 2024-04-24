@@ -561,6 +561,9 @@ module snitch_cluster
   tcdm_req_t [NrTCDMPortsHwpe-1:0] hwpe_tcdm_req;
   tcdm_rsp_t [NrTCDMPortsHwpe-1:0] hwpe_tcdm_rsp;
 
+  logic [NrCores-1:0][1:0] hwpe_evt;
+  logic hwpe_busy;
+
   // 7. Misc. Wires.
   logic icache_prefetch_enable;
   logic [NrCores-1:0] cl_interrupt;
@@ -1296,7 +1299,9 @@ module snitch_cluster
     .core_events_i (core_events),
     .tcdm_events_i (tcdm_events),
     .dma_events_i (dma_events),
-    .icache_events_i (icache_events)
+    .icache_events_i (icache_events),
+    .hwpe_evt_i (hwpe_evt),
+    .hwpe_busy_i (hwpe_busy)
   );
 
   // 3. Hardware Processing Engine
@@ -1363,7 +1368,9 @@ module snitch_cluster
     .hwpe_tcdm_req_o (hwpe_tcdm_req),
     .hwpe_tcdm_rsp_i (hwpe_tcdm_rsp),
     .hwpe_ctrl_req_i (hwpe_ctrl_req),
-    .hwpe_ctrl_rsp_o (hwpe_ctrl_rsp)
+    .hwpe_ctrl_rsp_o (hwpe_ctrl_rsp),
+    .hwpe_evt_o (hwpe_evt),
+    .hwpe_busy_o (hwpe_busy)
   );
 
   // Optionally decouple the external narrow AXI master ports.
