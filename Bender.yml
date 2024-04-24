@@ -28,6 +28,7 @@ dependencies:
   riscv-dbg:          { git: https://github.com/pulp-platform/riscv-dbg,          version:  0.8.0   }
   cluster_icache:     { git: https://github.com/pulp-platform/cluster_icache.git, version:  0.1.0   }
   idma:               { git: https://github.com/pulp-platform/iDMA,               version:  0.6.0   }
+  transformer-accel:  { git: https://iis-git.ee.ethz.ch/ita/ita.git,              rev:      a78e8e90be0047f4eb9a91b1c4ad631c8cae00c8 }
 
 vendor_package:
   - name: musl
@@ -218,6 +219,7 @@ sources:
       - hw/snitch_cluster/src/snitch_clkdiv2.sv
       # Level 3
       - hw/snitch_cluster/src/snitch_hive.sv
+      - hw/snitch_cluster/src/snitch_hwpe_subsystem.sv
       # Level 4
       - hw/snitch_cluster/src/snitch_cluster.sv
   - target: test
