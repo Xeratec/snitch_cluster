@@ -520,6 +520,8 @@ module snitch_cluster
 
   axi_hwpe_mst_req_t  axi_hwpe_mst_req;
   axi_hwpe_mst_resp_t axi_hwpe_mst_rsp;
+  axi_hwpe_mst_req_t  axi_hwpe_mst_req_cut;
+  axi_hwpe_mst_resp_t axi_hwpe_mst_rsp_cut;
 
   // 2. Memory Subsystem (Banks)
   mem_req_t [NrSuperBanks-1:0][BanksPerSuperBank-1:0] ic_req;
@@ -1334,6 +1336,24 @@ module snitch_cluster
     .mst_resp_i (axi_hwpe_mst_rsp)
   );
 
+  axi_cut #(
+    .Bypass (0),
+    .aw_chan_t (axi_hwpe_mst_aw_chan_t),
+    .w_chan_t (axi_hwpe_mst_w_chan_t),
+    .b_chan_t (axi_hwpe_mst_b_chan_t),
+    .ar_chan_t (axi_hwpe_mst_ar_chan_t),
+    .r_chan_t (axi_hwpe_mst_r_chan_t),
+    .axi_req_t (axi_hwpe_mst_req_t),
+    .axi_resp_t (axi_hwpe_mst_resp_t)
+  ) i_cut_axi_hwpe_mst (
+    .clk_i,
+    .rst_ni,
+    .slv_req_i (axi_hwpe_mst_req),
+    .slv_resp_o (axi_hwpe_mst_rsp),
+    .mst_req_o (axi_hwpe_mst_req_cut),
+    .mst_resp_i (axi_hwpe_mst_rsp_cut)
+  );
+
   axi_to_tcdm #(
     .axi_req_t (axi_hwpe_mst_req_t),
     .axi_rsp_t (axi_hwpe_mst_resp_t),
@@ -1345,8 +1365,8 @@ module snitch_cluster
   ) i_axi_to_tcdm_hwpe (
     .clk_i,
     .rst_ni,
-    .axi_req_i (axi_hwpe_mst_req),
-    .axi_rsp_o (axi_hwpe_mst_rsp),
+    .axi_req_i (axi_hwpe_mst_req_cut),
+    .axi_rsp_o (axi_hwpe_mst_rsp_cut),
     .tcdm_req_o (hwpe_ctrl_req),
     .tcdm_rsp_i (hwpe_ctrl_rsp)
   );
