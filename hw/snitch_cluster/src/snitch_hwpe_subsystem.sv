@@ -66,11 +66,14 @@ module snitch_hwpe_subsystem
   // TODO: clock gating cells
 
   // HWPE
-  hci_core_intf #( 
-    .DW ( AccDataWidth )
-  ) tcdm (
-    .clk (clk_i)
-  );
+  logic [NrTCDMPorts-1:0]                        tcdm_req;
+  logic [NrTCDMPorts-1:0]                        tcdm_gnt;
+  logic [NrTCDMPorts-1:0][TCDMDataWidth-1:0]     tcdm_add;
+  logic [NrTCDMPorts-1:0]                        tcdm_wen;
+  logic [NrTCDMPorts-1:0][(TCDMDataWidth/8)-1:0] tcdm_be;
+  logic [NrTCDMPorts-1:0][TCDMDataWidth-1:0]     tcdm_data;
+  logic [NrTCDMPorts-1:0][TCDMDataWidth-1:0]     tcdm_r_data;
+  logic [NrTCDMPorts-1:0]                        tcdm_r_valid;
 
   hwpe_ctrl_intf_periph #( 
     .ID_WIDTH (IdWidth) 
@@ -82,38 +85,22 @@ module snitch_hwpe_subsystem
   // binding tcdm struct with hwpe internals (from tcdm to pure req/gnt)-- data port
   /********************************************************************************/
 
-  // Generate the TCDM signals
-  logic [NrTCDMPorts-1:0] local_tcdm_gnt;
-  logic [NrTCDMPorts-1:0] local_tcdm_r_valid;
-  logic [NrTCDMPorts-1:0][TCDMDataWidth-1:0] local_tcdm_r_data;
-
   //bindings
   genvar i;
   generate
     for (i = 0; i < NrTCDMPorts; i++) begin
       // request channel
-      assign hwpe_tcdm_req_o[i].q_valid        = tcdm.req;
-      assign hwpe_tcdm_req_o[i].q.addr         = tcdm.add + i*(TCDMDataWidth/8);
-      assign hwpe_tcdm_req_o[i].q.write        = ~tcdm.wen;
-      assign hwpe_tcdm_req_o[i].q.strb         = tcdm.be[(i+1)*(TCDMDataWidth/8)-1:i*(TCDMDataWidth/8)];
-      assign hwpe_tcdm_req_o[i].q.data         = tcdm.data[(i+1)*TCDMDataWidth-1:i*TCDMDataWidth];
+      assign hwpe_tcdm_req_o[i].q_valid        = tcdm_req[i];
+      assign hwpe_tcdm_req_o[i].q.addr         = tcdm_add[i];
+      assign hwpe_tcdm_req_o[i].q.write        = ~tcdm_wen[i];
+      assign hwpe_tcdm_req_o[i].q.strb         = tcdm_be[i];
+      assign hwpe_tcdm_req_o[i].q.data         = tcdm_data[i];
       assign hwpe_tcdm_req_o[i].q.amo          = reqrsp_pkg::AMONone;
       assign hwpe_tcdm_req_o[i].q.user.core_id = '0;
       assign hwpe_tcdm_req_o[i].q.user.is_core = 1'b0;
-      assign local_tcdm_gnt[i] = hwpe_tcdm_rsp_i[i].q_ready;
-      assign local_tcdm_r_valid[i] = hwpe_tcdm_rsp_i[i].p_valid;
-      assign local_tcdm_r_data[i] = hwpe_tcdm_rsp_i[i].p.data;
-      // response channel
-      if (i == NrTCDMPorts-1) begin
-        assign tcdm.gnt = &(local_tcdm_gnt);
-        assign tcdm.r_valid = &(local_tcdm_r_valid);
-        assign tcdm.r_data = { >> {local_tcdm_r_data} };
-        assign tcdm.r_user = '0;
-        assign tcdm.r_id = '0;
-        assign tcdm.r_ecc = '0;
-        assign tcdm.egnt = '0;
-        assign tcdm.r_evalid = '0;
-      end
+      assign tcdm_gnt[i] = hwpe_tcdm_rsp_i[i].q_ready;
+      assign tcdm_r_valid[i] = hwpe_tcdm_rsp_i[i].p_valid;
+      assign tcdm_r_data[i] = hwpe_tcdm_rsp_i[i].p.data;
     end
   endgenerate
 
@@ -136,14 +123,36 @@ module snitch_hwpe_subsystem
   /* HWPE Instance   */
   /*******************/
 
-  ita_top dut (
+  ita_wrap #(
+    .AccDataWidth (AccDataWidth ),
+    .IdWidth      (IdWidth      ),
+    .MemDataWidth (TCDMDataWidth)
+  ) i_ita (
     .clk_i,
     .rst_ni,
-    .test_mode_i (1'b0       ),
-    .evt_o       (hwpe_evt_o ),
-    .busy_o      (hwpe_busy_o),
-    .tcdm        (tcdm       ),
-    .periph      (periph     )
+    .test_mode_i        (test_mode_i         ),
+    .evt_o              (hwpe_evt_o          ),
+    .busy_o             (hwpe_busy_o         ),
+
+    .tcdm_req_o         ( tcdm_req           ),
+    .tcdm_add_o         ( tcdm_add           ),
+    .tcdm_wen_o         ( tcdm_wen           ),
+    .tcdm_be_o          ( tcdm_be            ),
+    .tcdm_data_o        ( tcdm_data          ),
+    .tcdm_gnt_i         ( tcdm_gnt           ),
+    .tcdm_r_data_i      ( tcdm_r_data        ),
+    .tcdm_r_valid_i     ( tcdm_r_valid       ),
+
+    .periph_req_i       ( periph.req         ),
+    .periph_gnt_o       ( periph.gnt         ),
+    .periph_add_i       ( periph.add         ),
+    .periph_wen_i       ( periph.wen         ),
+    .periph_be_i        ( periph.be          ),
+    .periph_data_i      ( periph.data        ),
+    .periph_id_i        ( periph.id          ),
+    .periph_r_data_o    ( periph.r_data      ),
+    .periph_r_valid_o   ( periph.r_valid     ),
+    .periph_r_id_o      ( periph.r_id        )
   );
 
   /***************/

@@ -5,3 +5,4 @@
 overrides:
     # Some of our dependencies have false conflicts with our new AXI version; force our version.
     axi: {git: https://github.com/pulp-platform/axi.git, version:  0.39.2 }
+    hwpe-stream: { git: "https://github.com/pulp-platform/hwpe-stream.git", rev: "a20f35e62fe2842904797079dc7881e490ff7117" }
