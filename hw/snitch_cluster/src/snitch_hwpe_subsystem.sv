@@ -35,7 +35,8 @@ module snitch_hwpe_subsystem
 
   // hwpe params
   parameter int unsigned AccDataWidth   = 1024,
-  parameter int unsigned IdWidth        = 8,
+  parameter int unsigned TCDMAddrWidth  = 32,
+  parameter int unsigned IdWidth        = 2,
   parameter int unsigned NrCores        = 8,
 
   // system params
@@ -68,7 +69,7 @@ module snitch_hwpe_subsystem
   // HWPE
   logic [NrTCDMPorts-1:0]                        tcdm_req;
   logic [NrTCDMPorts-1:0]                        tcdm_gnt;
-  logic [NrTCDMPorts-1:0][TCDMDataWidth-1:0]     tcdm_add;
+  logic [NrTCDMPorts-1:0][31:0]                  tcdm_add;
   logic [NrTCDMPorts-1:0]                        tcdm_wen;
   logic [NrTCDMPorts-1:0][(TCDMDataWidth/8)-1:0] tcdm_be;
   logic [NrTCDMPorts-1:0][TCDMDataWidth-1:0]     tcdm_data;
@@ -91,7 +92,7 @@ module snitch_hwpe_subsystem
     for (i = 0; i < NrTCDMPorts; i++) begin
       // request channel
       assign hwpe_tcdm_req_o[i].q_valid        = tcdm_req[i];
-      assign hwpe_tcdm_req_o[i].q.addr         = tcdm_add[i];
+      assign hwpe_tcdm_req_o[i].q.addr         = tcdm_add[i][TCDMAddrWidth-1:0];
       assign hwpe_tcdm_req_o[i].q.write        = ~tcdm_wen[i];
       assign hwpe_tcdm_req_o[i].q.strb         = tcdm_be[i];
       assign hwpe_tcdm_req_o[i].q.data         = tcdm_data[i];

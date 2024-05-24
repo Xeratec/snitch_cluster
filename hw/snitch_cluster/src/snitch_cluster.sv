@@ -1377,6 +1377,7 @@ module snitch_cluster
     .hwpectrl_req_t (hwpectrl_req_t),
     .hwpectrl_rsp_t (hwpectrl_rsp_t), 
     .AccDataWidth (HwpeDataWidth),
+    .TCDMAddrWidth (TCDMAddrWidth),
     .IdWidth (8), // TO CHECK 
     .NrCores (NrCores),
     .TCDMDataWidth (NarrowDataWidth), 

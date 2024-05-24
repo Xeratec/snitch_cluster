@@ -28,9 +28,17 @@ dependencies:
   riscv-dbg:          { git: https://github.com/pulp-platform/riscv-dbg,          version:  0.8.0   }
   cluster_icache:     { git: https://github.com/pulp-platform/cluster_icache.git, version:  0.1.0   }
   idma:               { git: https://github.com/pulp-platform/iDMA,               version:  0.6.0   }
-  transformer-accel:  { git: https://iis-git.ee.ethz.ch/ita/ita.git,              rev:      edae094f3cd9bcb38ba06f481fa45c59f4c039a2 }
+  transformer-accel:  { git: https://iis-git.ee.ethz.ch/ita/ita.git,              rev:      f1a58449655b8d29a0e3fcfc66ee1bc444f9faa2 }
+
+workspace:
+  checkout_dir: deps
 
 vendor_package:
+  - name: hwpe-stream
+    target_dir: deps/hwpe-stream
+    upstream: { git: "https://github.com/pulp-platform/hwpe-stream.git", rev: "a20f35e62fe2842904797079dc7881e490ff7117" }
+    patch_dir: patches
+
   - name: musl
     target_dir: sw/math
     upstream: { git: https://github.com/kraj/musl.git, rev: 7a43f6fea9081bdd53d8a11cef9e9fab0348c53d } # v1.2.4
