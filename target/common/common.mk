@@ -54,10 +54,13 @@ VSIM_SOURCES   = $(shell ${BENDER} script flist ${VSIM_BENDER} | ${SED_SRCS})
 VSIM_BUILDDIR ?= work-vsim
 VSIM_FLAGS    += -t 1ps
 ifeq ($(DEBUG), ON)
-VSIM_FLAGS    += -do "log -r /*; run -a"
+VSIM_FLAGS    += -do "do wave_hwpe.do; run -a"
 VOPT_FLAGS     = +acc
 else
 VSIM_FLAGS    += -do "run -a"
+endif
+ifdef POST_SYNT
+COMPILE_GF22   = source scripts/compile_gf22.tcl
 endif
 
 # VCS_BUILDDIR should to be the same as the `DEFAULT : ./work-vcs`

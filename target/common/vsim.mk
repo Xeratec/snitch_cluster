@@ -16,7 +16,7 @@ $(BIN_DIR):
 
 # Build compilation script and compile all sources for Questasim simulation
 $(BIN_DIR)/$(TARGET).vsim: $(VSIM_BUILDDIR)/compile.vsim.tcl $(VSIM_SOURCES) $(TB_SRCS) $(TB_CC_SOURCES) work/lib/libfesvr.a | $(BIN_DIR)
-	$(VSIM) -c -do "source $<; quit" | tee $(dir $<)vlog.log
+	$(VSIM) -c -do "source $<; $(COMPILE_GF22); quit" | tee $(dir $<)vlog.log
 	@! grep -P "Errors: [1-9]*," $(dir $<)vlog.log
 	$(VOPT) $(VOPT_FLAGS) -work $(VSIM_BUILDDIR) tb_bin -o tb_bin_opt | tee $(dir $<)vopt.log
 	@! grep -P "Errors: [1-9]*," $(dir $<)vopt.log
