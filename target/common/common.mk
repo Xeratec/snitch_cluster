@@ -47,7 +47,7 @@ MATCH_END := '/+incdir+/ s/$$/\/*\/*/'
 MATCH_BGN := 's/+incdir+//g'
 SED_SRCS  := sed -e ${MATCH_END} -e ${MATCH_BGN}
 
-COMMON_BENDER_FLAGS += -t rtl
+COMMON_BENDER_FLAGS += -t rtl -t hwpe
 
 VSIM_BENDER   += $(COMMON_BENDER_FLAGS) -t test -t simulation -t vsim
 VSIM_SOURCES   = $(shell ${BENDER} script flist ${VSIM_BENDER} | ${SED_SRCS})
