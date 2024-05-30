@@ -28,7 +28,7 @@ dependencies:
   riscv-dbg:          { git: https://github.com/pulp-platform/riscv-dbg,          version:  0.8.0   }
   cluster_icache:     { git: https://github.com/pulp-platform/cluster_icache.git, version:  0.1.0   }
   idma:               { git: https://github.com/pulp-platform/iDMA,               version:  0.6.0   }
-  transformer-accel:  { git: git@iis-git.ee.ethz.ch:ita/ita.git,                  rev:      21abb091731c7bc4aeb7b44a9c3af6f59a36b6ae }
+  transformer-accel:  { git: git@iis-git.ee.ethz.ch:ita/ita.git,                  rev:      db093c8c9d59ba9c6c1b8970f98db5471bd4d8bf }
 
 workspace:
   checkout_dir: deps
