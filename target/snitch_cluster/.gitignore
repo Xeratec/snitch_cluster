@@ -6,5 +6,7 @@
 /work-vsim/
 /work-vlt/
 /work-vcs/
+/gate/
 /*.log
 /runs/
+wlft*
