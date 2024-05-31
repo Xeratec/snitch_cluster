@@ -10,7 +10,7 @@ module tb_bin;
   // This can't have an explicit type, otherwise the simulation will not advance
   // for whatever reason.
   // verilog_lint: waive explicit-parameter-storage-type
-  localparam TCK = 1ns;
+  localparam TCK = 2ns;
 
   logic rst_ni, clk_i;
 
