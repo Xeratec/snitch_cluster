@@ -57,6 +57,7 @@ APPS += sw/apps/atax
 APPS += sw/apps/correlation
 APPS += sw/apps/covariance
 APPS += sw/apps/hwpe
+APPS += sw/apps/hwpe_tiled
 
 SUBDIRS = sw/runtime/banshee sw/runtime/rtl sw/math $(APPS) sw/tests
 
