@@ -59,3 +59,4 @@ RISCV_ARFLAGS = rcs
 # Objdump flags
 RISCV_OBJDUMP_FLAGS += --mcpu=snitch
 RISCV_OBJDUMP_FLAGS += -D
+RISCV_OBJDUMP_FLAGS += -S
