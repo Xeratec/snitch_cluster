@@ -466,7 +466,7 @@ static inline void __attribute((always_inline))  ita_compute_output_embedding_st
         const int is_first_tile = (i == 0) && (j == 0) && (k == 0);
         const int is_last_tile = (i == N_TILE_SEQUENCE_LENGTH - 1) && (j == N_TILE_EMBEDDING_SPACE - 1) && (k == N_TILE_PROJECTION_SPACE - 1);
 
-        if ((N_TILE_SEQUENCE_LENGTH > 1) && (N_TILE_PROJECTION_SPACE > 1)) {
+        if ((N_TILE_SEQUENCE_LENGTH > 1) && (N_TILE_EMBEDDING_SPACE > 1)) {
           // Fetch inputs
           const int tile_size_input_av = TILE_SIZE_SEQUENCE_LENGTH * TILE_SIZE_PROJECTION_SPACE;
           const int offset_input_av = (i * N_TILE_PROJECTION_SPACE + k) * tile_size_input_av;
